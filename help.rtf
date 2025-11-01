@@ -1,0 +1,152 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Arial;}}
+{\colortbl ;\red221\green221\blue221;}
+\viewkind4\uc1\pard\cf1\fs20 UI ideas from Zerospace:\par
+https://www.youtube.com/watch?v=Z7VUZAuVw0k \par
+\par
+Physics based projectiles and weaponry should target enemy blobs of grouped units, rather than individual units\par
+\par
+Overhaul selection to be on the GUI side, not unit side (so instead of local select variables, it will be in a ds list or something)\par
+\par
+Porting GameMaker to Godot\par
+https://www.youtube.com/watch?v=Ve0PAxQj1Vs\par
+https://github.com/coppolaemilio/gamemaker-godot-dictionary \par
+https://www.youtube.com/watch?v=g2cDrSa4FAM\par
+\par
+EVENT INHERITED uses the OBJECT CALLING THE EVENT,\par
+NOT THE INSTANCE\par
+\par
+ie templates can have parents!\par
+ie\par
+unit has template\par
+template has event inherited\par
+template parent does the event inherited, not the unit parent\par
+(confirmed by Visual Novel RTS test)\par
+\par
+Sprite Import from Heros Hour\par
+remove background\par
+Stretch to half/50%, Excellent\par
+Stretch to 33%, Excellent\par
+\par
+Custom Sprite Framework Documentation:\par
+https://github.com/GameMakerDiscord/custom-sprite-framework/wiki \par
+\par
+File Sanboxing (turn off in Game Options for Studio 2, must use working_directory for Studio 1 to write, or Included Files directory for modding maybe):\par
+https://manual.gamemaker.io/monthly/en/Additional_Information/The_File_System.htm\par
+Included Files only seem to work with Installer packages, not normal exe\par
+\par
+Well, apparently, I already own the Non-Sandboxed File System extension (nsfs)\par
+\par
+Units and Entities have Templates\par
+Units and Entities can have Multiple Templates? (For example, attaching a radar to multiple units or structures)\par
+Templates can have Templates? (multiple parent logic, amkes sure no conflict)\par
+Templates never appear in-game, only Units/Entities\par
+You attach as many Templates you want to the single Faction Unit/Entity, then build said Unit\par
+\par
+So there is a:\par
+Soldier Template\par
+Infantry Template\par
+Rifle Template\par
+Faction 1 Unit\par
+\par
+Health Template\par
+Health Regen Template\par
+\par
+The Infantry Template is attached to the Soldier Template\par
+The Rifle Template is attached to the Soldier Template\par
+So 2 Templates are attached to the Soldier Template\par
+The Soldier Template is attached to the Faction 1 Unit\par
+Faction 1 Unit is built, and it shows up as a Faction 1 Soldier Unit\par
+\par
+When to use templates, and when to use code?\par
+If at any time that any detection is necessary for a category to collate units in a list, and also requires specific variables that apply to more than just one unit, then use a template.\par
+For example, if I ever need a detection list of all units with veterancy, and also veterancy has a set of specific variables, then that is a template.\par
+\par
+So these wouldn't be full templates, then. More like a state machine of sorts.\par
+For multiple templates, make a map or list or something. (DONE)\par
+\par
+Templates and parenting\par
+Templates add their parent template to the list in the Create Event\par
+No event inherited in Create Event because unit_template_add handles that\par
+\par
+Going back  to the Faction 1 Soldier Unit\par
+\par
+There are also:\par
+Health Template\par
+Health Regen Template (requires Health Template)\par
+\par
+Health Template is attached to Soldier at Create Event\par
+Soldier is wounded\par
+Medic targets those with Health Templates\par
+Well, a medic gives a regeneration shot to the Soldier as it has a Health Template\par
+The regeneration shot attaches a Health Regen Template on the Soldier\par
+\par
+If the Soldier does not have Health Template\par
+If for some reason the regeneration shot hits the Soldier and succeeds\par
+The regeneration shot will first apply the Health Template before applying the Health Regen Template\par
+\par
+\par
+Unit Icons (like above the unit as in Inky Darkness) are important for readability. Shattered Paradise (Open RA Tib Sun mod) has bad readability, need big icons. Supcom has icons showing up on minimap, not just the game. I think.\par
+\par
+Should weapons and resources be templates? Should the base unit be a template for entities?\par
+Eventually, templates will also be loaded as mods.\par
+\par
+Remember that instance_change and instance_copy exists.\par
+\par
+Unit Step Order:\par
+Target Detection\par
+Movement\par
+Attack\par
+Collision Detection\par
+\par
+Or should one use alarms for both attack and target detection?\par
+\par
+Squad Layer?\par
+\par
+Terrain Tile System\par
+tile_layer_find()\par
+\par
+Replace Alarms with Timelines\par
+Should targeting include sides?\par
+Tactical Pause but also Tactical Slow Down (as upgrades?)\par
+\par
+Singletons:\par
+Control\par
+Targeting\par
+\par
+Builder:\par
+\par
+AI Automation: For whole proactive armies and squads, not just units reacting. Rallying, etc. Like an optional autobattler.\par
+\par
+Templates - collections that contain events code in Create, Step, Draw, Destroy, etc and also numbered Events, templates are never created in-game, just referenced\par
+Units - have a list of templates (can be a template themselves?) and is a state machine that switches between templates\par
+Units usually go through all the list of templates, however, can be changed to not utilize all of a template, just some, using state machine to determine which event code to execute\par
+\par
+Need a more robust template switching system that prevents parent object type conflicts\par
+__________________\par
+https://forum.gamemaker.io/index.php?threads/instances-are-state-machines-gmwolf.55454/#post-340642 \par
+I was never really told that instance_change was bad, and I've been using GM since 6.1. I would say though I do not use it because instance_create then instance_destroy seems cleaner to me (as some have stated with the clean up states).\par
+\par
+The first thing I might apply this to is RTS games that have a lot of unit types and terrain types and more than 2 factions, because RTS units if you want a good detection/targeting system either needs multiple parents or instance changing. For example, if you want to target ground infantry units but can't target units of your own side but another side, so you have to cycle through only units of the enemy's side but then you also have to cycle through all infantry units, and all ground units, and some are tanks instead of infantry, and some are flying infantry. So it would be just easier to cycle through by changing all objects to each category. (Yes, you can use "if statements" but that makes the detection algorithm bloated).\par
+\par
+(Also I realize the above paragraph can be confusing and also possibly inefficient)\par
+\par
+Weapon mechanics can be inspired by Noita Wand mechanics https://noita.fandom.com/wiki/Guide_To_Wand_Mechanics\par
+___________________\par
+https://www.youtube.com/watch?v=kA3AYsx9czU\par
+\par
+Colony sims have zone commands, like destroy all things in an area, or gather all things in an area\par
+Can it be done with dragging right click?\par
+Bobby Tech Chaotic Era has clicking on terrain (without selecting first) and getting a menu\par
+___________________\par
+Limit global powers and passives to an inventory or equip, or need a local structure or representation for area powers (like superweapon structure that affects only an area)\par
+For example, detecting mines as a global power should be in an inventory, or need a structure for it for an area (for balance purposes)\par
+\par
+___________________\par
+\par
+https://www.youtube.com/watch?v=VdqhHKjepiE\par
+\par
+Story Generator first before a game?\par
+Kenshi and Rimworld level of sandbox (not Factorio though, that's too much). Ability to buy and sell units (and other things) to market. Territory enforcement by other factions (like taxes).\par
+Also AI War and Shadow Empire and Pandemonium\fs24\par
+}
+ 

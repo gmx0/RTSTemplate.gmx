@@ -1,0 +1,9 @@
+if max(argument0,argument2)<=view_xview[argument4]
+return true;
+if max(argument1,argument3)<=view_yview[argument4]
+return true;
+if min(argument0,argument2)>=view_xview[argument4]+view_wview[argument4]
+return true;
+if min(argument1,argument3)>=view_yview[argument4]+view_hview[argument4]
+return true;
+return false;
