@@ -25,7 +25,19 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>rts_system_init();
+            <string>//image framework 
+image_system_init();
+image_group_create("main"); //create a new texture image group
+image_stream_start("main",1024,1024,2,true,false); //start a loading stream
+/*
+
+Add images: image_stream_add("main", "player", "player.png", 4, 0.5, 1.0)
+Handle loading: image_stream_receive("main") in Async Image Loaded event
+Finish processing: image_stream_finish("main")
+Draw: draw_image(image_ref, subimg, x, y)
+*/
+//
+rts_system_init();
 
 global.pause=false;
 game_time=0;
