@@ -38,6 +38,7 @@ Draw: draw_image(image_ref, subimg, x, y)
 */
 //
 rts_system_init();
+signal_all_init();
 
 global.pause=false;
 game_time=0;

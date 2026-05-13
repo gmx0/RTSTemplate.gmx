@@ -290,6 +290,18 @@
       <script>scripts\templates_event_draw_normal.gml</script>
     </scripts>
     <script>scripts\draw_sprite_3d.gml</script>
+    <scripts name="Signals">
+      <script>scripts\signal_all_init.gml</script>
+      <script>scripts\signal_all_end.gml</script>
+      <script>scripts\signal.gml</script>
+      <script>scripts\signal_instance.gml</script>
+      <script>scripts\signal_all_reset.gml</script>
+      <script>scripts\signal_receive.gml</script>
+      <script>scripts\signal_receive_instance.gml</script>
+      <script>scripts\signal_receive_once.gml</script>
+      <script>scripts\signal_receive_instance_once.gml</script>
+      <script>scripts\signal_exists.gml</script>
+    </scripts>
   </scripts>
   <objects name="objects">
     <object>objects\obj_control</object>
