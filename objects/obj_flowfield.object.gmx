@@ -66,59 +66,6 @@ scr_calculateFlowField(grid, targetNode);
         </arguments>
       </action>
     </event>
-    <event eventtype="3" enumb="0">
-      <action>
-        <libid>1</libid>
-        <id>603</id>
-        <kind>7</kind>
-        <userelative>0</userelative>
-        <isquestion>0</isquestion>
-        <useapplyto>-1</useapplyto>
-        <exetype>2</exetype>
-        <functionname></functionname>
-        <codestring></codestring>
-        <whoName>self</whoName>
-        <relative>0</relative>
-        <isnot>0</isnot>
-        <arguments>
-          <argument>
-            <kind>1</kind>
-            <string>if (mouse_check_button_pressed(mb_left)) //set valid target node
-{
-    var xx = mouse_x div gridSize;
-    var yy = mouse_y div gridSize;
-    var node = ds_grid_get(grid, xx, yy);
-    if (node.walkable)
-    {
-        targetNode = node;
-        scr_calculateFlowField(grid, targetNode);
-    }
-}
-
-if (mouse_check_button_pressed(mb_right)) //create thing
-{
-    var xx = mouse_x div gridSize;
-    var yy = mouse_y div gridSize;
-    var node = ds_grid_get(grid, xx, yy);
-    if (node.walkable)
-    {
-        instance_create(xx*gridSize+gridSize/2,yy*gridSize+gridSize/2,obj_thing);
-    }
-}
-
-if (mouse_check_button_pressed(mb_middle)) //adjust walkable/non-walkable node
-{
-    var xx = mouse_x div gridSize;
-    var yy = mouse_y div gridSize;
-    var node = ds_grid_get(grid, xx, yy);
-    node.walkable = !node.walkable;
-    scr_calculateFlowField(grid, targetNode);
-}
-</string>
-          </argument>
-        </arguments>
-      </action>
-    </event>
     <event eventtype="8" enumb="0">
       <action>
         <libid>1</libid>
