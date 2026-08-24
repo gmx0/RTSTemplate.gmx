@@ -29,6 +29,8 @@
 image_system_init();
 image_group_create("main"); //create a new texture image group
 image_stream_start("main",1024,1024,2,true,false); //start a loading stream
+mod_system_init();
+mod_load_core_images("main");
 /*
 
 Add images: image_stream_add("main", "player", "player.png", 4, 0.5, 1.0)

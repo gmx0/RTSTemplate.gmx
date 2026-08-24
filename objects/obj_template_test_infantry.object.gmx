@@ -36,6 +36,8 @@ You attach as many Templates you want to the single Faction Unit/Entity, then bu
 //the main template object is declated OUTSIDE 
 //by a CONSTRUCTOR using unit_build(x,y,obj_template_test)
 
+unit_image_id="core.units.infantry";
+unit_template_add(id,obj_template_visual_image);
 unit_template_add(id,obj_template_bipedal);
 unit_template_add(id,obj_template_health);
 unit_hp=10;

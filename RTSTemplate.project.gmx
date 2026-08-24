@@ -290,6 +290,14 @@
       <script>scripts\templates_event_draw_normal.gml</script>
       <script>scripts\templates_event_user.gml</script>
     </scripts>
+    <scripts name="Modding">
+      <script>scripts\mod_system_init.gml</script>
+      <script>scripts\mod_map_set.gml</script>
+      <script>scripts\mod_image_register.gml</script>
+      <script>scripts\mod_image_resolve_all.gml</script>
+      <script>scripts\mod_image_get.gml</script>
+      <script>scripts\mod_load_core_images.gml</script>
+    </scripts>
     <script>scripts\draw_sprite_3d.gml</script>
     <scripts name="Signals">
       <script>scripts\signal_all_init.gml</script>
@@ -363,6 +371,7 @@
       <object>objects\obj_template_detector_psi</object>
       <object>objects\obj_template_mindcontrol</object>
       <object>objects\obj_template_connect</object>
+      <object>objects\obj_template_visual_image</object>
     </objects>
     <object>objects\obj_targeting</object>
     <object>objects\obj_loader</object>
