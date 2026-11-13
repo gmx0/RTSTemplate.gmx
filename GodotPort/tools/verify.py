@@ -36,6 +36,7 @@ if not args.network_only:
     report(subprocess.run(base + ['--editor', '--import', '--quit'], env=env, capture_output=True, text=True, timeout=120), 'import')
     report(subprocess.run(base + ['--script', 'res://tests/smoke.gd', '--quit-after', '300'], env=env, capture_output=True, text=True, timeout=120), 'gameplay')
     report(subprocess.run(base + ['--script', 'res://tests/priority.gd', '--quit-after', '300'], env=env, capture_output=True, text=True, timeout=120), 'priority')
+    report(subprocess.run(base + ['--script', 'res://tests/next_priority.gd', '--quit-after', '600'], env=env, capture_output=True, text=True, timeout=120), 'next_priority')
 if args.network or args.network_only:
     ready_file = project / 'docs/network.ready'
     if ready_file.exists():

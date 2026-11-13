@@ -4,7 +4,7 @@ var results: Array = []
 
 func observe(world, player: int) -> Dictionary:
 	return {
-		"owned": world.units.filter(func(u): return not u.dead and u.owner_id == player),
+		"owned": world.units.filter(func(u): return not u.dead and u.host_id == 0 and u.owner_id == player),
 		"contacts": world.units.filter(func(u): return u.owner_id > 0 and u.owner_id != player and world.entity_disclosed(player, u)),
 		"resources": world.units.filter(func(u): return u.has_template("resource") and u.stock > 0 and world.entity_disclosed(player, u))
 	}

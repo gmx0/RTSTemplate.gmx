@@ -1,4 +1,7 @@
 extends Node2D
+const Containment = preload("res://scripts/containment.gd")
+const Objectives = preload("res://scripts/objectives.gd")
+var objectives = Objectives.new()
 const Abilities = preload("res://scripts/abilities.gd")
 const AIPolicy = preload("res://scripts/ai_policy.gd")
 var ai_policy = AIPolicy.new()
@@ -128,7 +131,7 @@ func _network_probe(client: bool) -> void:
 		await get_tree().create_timer(2.0).timeout
 	get_tree().quit()
 
-func start_match(single_unit: bool = false) -> void:
+func start_match(single_unit: bool = false, objective_rules: Array = []) -> void:
 	for unit in units:
 		unit.free()
 	units.clear()
@@ -144,6 +147,7 @@ func start_match(single_unit: bool = false) -> void:
 	outcome = ""
 	paused = false
 	sandbox = single_unit
+	objectives.reset(objective_rules)
 	players = [{"id": 0, "name": "Neutral", "credits": 0}, {"id": 1, "name": "Player 1", "credits": 350}, {"id": 2, "name": "Player 2", "credits": 350}]
 	if single_unit:
 		spawn("core.units.infantry", 1, Vector2(512, 384))
@@ -176,16 +180,17 @@ func spawn(id: String, player: int, point: Vector2, assigned_id: int = 0):
 	bus.send("unit_spawned", unit.net_id)
 	return unit
 
-func remove_unit(unit) -> void:
+func remove_unit(unit, gameplay: bool = true) -> void:
+	if gameplay:
+		Containment.detach(unit, true)
+	if gameplay and unit.dead:
+		objectives.destroyed(unit)
 	if unit.is_structure():
 		navigation.block_rect(Rect2(unit.position - Vector2.ONE * unit.radius, Vector2.ONE * unit.radius * 2), false)
 	selected.erase(unit)
 	units.erase(unit)
 	bus.send("unit_destroyed", unit.net_id)
 	unit.queue_free()
-	if not sandbox and unit.definition_id == "core.structures.hq":
-		outcome = "Player %s wins" % (2 if unit.owner_id == 1 else 1)
-		notify(outcome + " · Restart from the menu to play again.")
 
 func find_unit(id: int):
 	for unit in units:
@@ -200,7 +205,7 @@ func point_visible(player: int, point: Vector2) -> bool:
 	if player <= 0 or player >= players.size() or not point.is_finite():
 		return false
 	for observer in units:
-		if observer.dead or observer.owner_id != player or observer.construction < 1:
+		if observer.dead or observer.host_id != 0 or observer.owner_id != player or observer.construction < 1:
 			continue
 		var sight := float(observer.stats.get("vision", 190))
 		if sight > 0 and observer.position.distance_squared_to(point) <= sight * sight:
@@ -208,7 +213,7 @@ func point_visible(player: int, point: Vector2) -> bool:
 	return false
 
 func entity_disclosed(player: int, unit) -> bool:
-	if player <= 0 or player >= players.size() or not is_instance_valid(unit) or unit.dead:
+	if player <= 0 or player >= players.size() or not is_instance_valid(unit) or unit.dead or unit.host_id != 0:
 		return false
 	if unit.owner_id == player:
 		return true
@@ -219,7 +224,7 @@ func entity_disclosed(player: int, unit) -> bool:
 	if not unit.stats.get("cloaked", false):
 		return true
 	for detector in units:
-		if detector.dead or detector.owner_id != player or detector.construction < 1 or not detector.has_template("detector_cloak"):
+		if detector.dead or detector.host_id != 0 or detector.owner_id != player or detector.construction < 1 or not detector.has_template("detector_cloak"):
 			continue
 		if detector.stats.get("detector_requires_power", true) and power(player) < 0:
 			continue
@@ -230,7 +235,7 @@ func entity_disclosed(player: int, unit) -> bool:
 
 func can_see(player: int, unit) -> bool:
 	# Debug rendering never grants commands or AI extra knowledge.
-	return is_instance_valid(unit) and not unit.dead and (not show_fog or entity_disclosed(player, unit))
+	return is_instance_valid(unit) and not unit.dead and unit.host_id == 0 and (not show_fog or entity_disclosed(player, unit))
 
 func power(player: int) -> int:
 	var total := 0
@@ -261,7 +266,7 @@ func _physics_process(delta: float) -> void:
 	for i in range(projectiles.size() - 1, -1, -1):
 		var shot: Dictionary = projectiles[i]
 		var target = find_unit(int(shot.target))
-		if target == null:
+		if target == null or target.host_id != 0:
 			projectiles.remove_at(i)
 			continue
 		var point := Vector2(shot.x, shot.y)
@@ -271,6 +276,9 @@ func _physics_process(delta: float) -> void:
 		if point.distance_to(target.position) < target.radius + 4:
 			var attacker = find_unit(int(shot.attacker))
 			target.damage(float(shot.damage), attacker)
+			if not target.dead and shot.has("status"):
+				var effect: Dictionary = shot.status
+				target.apply_status(str(effect.get("id", "hit")), float(effect.get("duration", 0)), effect)
 			projectiles.remove_at(i)
 	fog_timer += delta
 	if fog_timer >= 0.15:
@@ -278,11 +286,13 @@ func _physics_process(delta: float) -> void:
 		fog.update(units, players)
 	if ai_enabled and not sandbox and (not network.active() or network.peers.is_empty()):
 		tick_ai(delta)
+	if not sandbox:
+		outcome = objectives.evaluate(self)
 
 func fire(attacker, target, amount: float) -> void:
 	if power(attacker.owner_id) < 0 and attacker.is_structure():
 		return
-	projectiles.append({"x": attacker.position.x, "y": attacker.position.y, "target": target.net_id, "attacker": attacker.net_id, "damage": amount, "owner": attacker.owner_id})
+	projectiles.append({"x": attacker.position.x, "y": attacker.position.y, "target": target.net_id, "attacker": attacker.net_id, "damage": amount, "owner": attacker.owner_id, "status": attacker.stats.get("hit_status", {}).duplicate(true)})
 	bus.send("weapon_fired", attacker.net_id)
 
 func tick_ai(delta: float) -> void:
@@ -339,7 +349,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			if event.ctrl_pressed:
 				groups[number] = selected_ids()
 			else:
-				set_selection(units.filter(func(u): return u.net_id in groups.get(number, []) and u.owner_id == local_player))
+				set_selection(units.filter(func(u): return u.net_id in groups.get(number, []) and u.owner_id == local_player and u.host_id == 0))
 		match event.keycode:
 			KEY_SPACE:
 				network.submit({"type": "pause"})
@@ -364,8 +374,8 @@ func selected_ids() -> Array:
 
 func set_selection(list: Array) -> void:
 	for unit in units:
-		unit.selected = unit in list
-	selected = list
+		unit.selected = unit in list and unit.host_id == 0
+	selected = list.filter(func(u): return u.host_id == 0)
 
 func select_region(start: Vector2, finish: Vector2, additive: bool = false) -> void:
 	var result: Array = selected.duplicate() if additive else []
@@ -379,7 +389,7 @@ func select_region(start: Vector2, finish: Vector2, additive: bool = false) -> v
 	else:
 		var rect := Rect2(start, finish - start).abs()
 		for unit in units:
-			if unit.owner_id == local_player and not unit.is_structure() and rect.has_point(unit.position) and not unit in result:
+			if unit.owner_id == local_player and unit.host_id == 0 and not unit.is_structure() and rect.has_point(unit.position) and not unit in result:
 				result.append(unit)
 	set_selection(result)
 
@@ -403,6 +413,8 @@ func issue_context(point: Vector2, queued: bool) -> void:
 			type = "attack"
 		elif target.has_template("resource"):
 			type = "harvest"
+		elif target.owner_id == local_player and target.has_template("storage_transport"):
+			type = "enter"
 		elif target.owner_id == local_player and target.hp < target.hp_max:
 			type = "repair"
 	issue_order(type, point, target.net_id if target != null else 0, queued)
@@ -457,7 +469,7 @@ func _execute_command(player: int, command: Dictionary) -> Dictionary:
 		if not is_finite(float(id)) or float(id) != int(id):
 			return command_result("invalid_source")
 		var source = find_unit(int(id))
-		if source == null or source.owner_id != player:
+		if source == null or source.host_id != 0 or source.owner_id != player:
 			return command_result("invalid_source")
 		if not source in owned:
 			owned.append(source)
@@ -505,16 +517,36 @@ func _execute_command(player: int, command: Dictionary) -> Dictionary:
 			unit.rally = point
 			accepted += 1
 			continue
-		reason = Abilities.available(unit, type)
+		reason = "status_blocked" if unit.is_stunned() else Abilities.available(unit, type)
 		if reason != "accepted":
 			continue
 		var declaration: Dictionary = Abilities.declarations(unit)[type]
 		var executor: String = declaration.get("command", type)
+		if executor == "enter":
+			if bool(command.get("queued", false)) or target == null or not entity_disclosed(player, target) or not Containment.reserve(unit, target):
+				reason = "blocked"
+				continue
+			unit.order({"type": "enter", "target": target.net_id})
+			unit.reserved_host_id = target.net_id
+			accepted += 1
+			continue
+		if executor == "unload":
+			var released := Containment.unload(unit)
+			if released > 0:
+				accepted += 1
+			else:
+				reason = "blocked"
+			continue
+		if executor == "deploy":
+			reason = transform(unit)
+			if reason == "accepted":
+				accepted += 1
+			continue
 		if executor in ["attack", "harvest", "repair"]:
 			if target == null or not entity_disclosed(player, target):
 				reason = "invalid_target"
 				continue
-			if (executor == "attack" and target.owner_id in [0, player]) or (executor == "harvest" and (not target.has_template("resource") or target.stock <= 0)) or (executor == "repair" and (target.owner_id != player or target.hp >= target.hp_max)):
+			if (executor == "attack" and not can_target(unit, target)) or (executor == "harvest" and (not target.has_template("resource") or target.stock <= 0)) or (executor == "repair" and (target.owner_id != player or target.hp >= target.hp_max)):
 				reason = "invalid_target"
 				continue
 		var order := command.duplicate(true)
@@ -543,7 +575,66 @@ func construction_check(player: int, builders: Array, id: String, point: Vector2
 		return "insufficient_funds"
 	return "accepted"
 
-func can_place(id: String, point: Vector2) -> bool:
+func change_owner(unit, player: int) -> bool:
+	if player <= 0 or player >= players.size() or unit.dead or unit.host_id != 0:
+		return false
+	Containment.detach(unit, false)
+	if units.any(func(passenger): return passenger.host_id == unit.net_id):
+		return false
+	unit.reserved_host_id = 0
+	unit.order({"type": "stop"})
+	unit.owner_id = player
+	set_selection(selected.filter(func(selected_unit): return selected_unit.owner_id == local_player))
+	refresh_services()
+	return true
+
+func can_target(attacker, target) -> bool:
+	return target != null and not target.dead and target.has_template("health") and target.owner_id > 0 and target.owner_id != attacker.owner_id and target.host_id == 0 and target.movement_layer() in attacker.stats.get("target_domains", ["land", "air", "water", "amphibious"]) and entity_disclosed(attacker.owner_id, target)
+
+func transform(unit) -> String:
+	var destination: String = unit.stats.get("transforms_to", "")
+	if not content.definitions.has(destination) or not unit.production.is_empty() or unit.cargo > 0 or Containment.occupied(unit) > 0 or unit.reserved_host_id != 0:
+		return "unavailable"
+	var footprint := Rect2(unit.position - Vector2.ONE * unit.radius, Vector2.ONE * unit.radius * 2)
+	var was_structure: bool = unit.is_structure()
+	if was_structure:
+		navigation.block_rect(footprint, false)
+	var clear := can_place(destination, unit.position, unit)
+	if was_structure:
+		navigation.block_rect(footprint, true)
+	if not clear:
+		return "blocked"
+	var definition: Dictionary = content.definitions[destination]
+	if not meets_requirements(unit.owner_id, definition):
+		return "prerequisite"
+	# Keep wrapper ID, ownership, XP, cooldowns and manually attached extra traits.
+	var extras: Array = unit.templates.keys().filter(func(id): return not id in unit.stats.templates)
+	var health_fraction: float = unit.hp / maxf(1, unit.hp_max)
+	var shield_fraction: float = unit.shield / maxf(1, unit.shield_max)
+	if was_structure:
+		navigation.block_rect(footprint, false)
+	for component in unit.templates.values():
+		component.detach()
+	unit.templates.clear()
+	unit.categories.clear()
+	unit.definition_id = destination
+	unit.stats = definition.duplicate(true)
+	unit.radius = float(definition.get("radius", 10))
+	unit.shield = 0
+	unit.shield_max = 0
+	for component_id in definition.templates + extras:
+		unit.add_template(component_id)
+	unit.hp = maxf(0.1, unit.hp_max * health_fraction)
+	unit.shield = unit.shield_max * shield_fraction
+	unit.ammo = maxf(0, minf(unit.ammo, float(definition.ammo_capacity))) if definition.has("ammo_capacity") else -1.0
+	unit.order({"type": "stop"})
+	unit.sprite = content.images.get(definition.get("image", ""))
+	if unit.is_structure():
+		navigation.block_rect(Rect2(unit.position - Vector2.ONE * unit.radius, Vector2.ONE * unit.radius * 2), true)
+	refresh_services()
+	return "accepted"
+
+func can_place(id: String, point: Vector2, exclude = null) -> bool:
 	if not content.definitions.has(id):
 		return false
 	var radius := float(content.definitions[id].get("radius", 24))
@@ -556,7 +647,7 @@ func can_place(id: String, point: Vector2) -> bool:
 			if not navigation.passable(Vector2i(x, y)):
 				return false
 	for unit in units:
-		if point.distance_to(unit.position) < radius + unit.radius + 6:
+		if unit != exclude and unit.host_id == 0 and point.distance_to(unit.position) < radius + unit.radius + 6:
 			return false
 	return true
 
@@ -600,7 +691,7 @@ func serialize() -> Dictionary:
 	var explored := {}
 	for player in fog.explored:
 		explored[str(player)] = fog.explored[player].keys().map(func(v): return [v.x, v.y])
-	return {"version": 1, "time": game_time, "players": players.duplicate(true), "units": units.map(func(u): return u.snapshot()), "next_id": next_id, "paused": paused, "sandbox": sandbox, "outcome": outcome, "explored": explored, "ai_enabled": ai_enabled, "ai_timer": ai_timer, "projectiles": projectiles.duplicate(true)}
+	return {"version": 1, "time": game_time, "players": players.duplicate(true), "units": units.map(func(u): return u.snapshot()), "next_id": next_id, "paused": paused, "sandbox": sandbox, "outcome": outcome, "explored": explored, "ai_enabled": ai_enabled, "ai_timer": ai_timer, "projectiles": projectiles.duplicate(true), "objectives": objectives.snapshot()}
 
 func restore(data: Dictionary, replicated: bool = false) -> void:
 	if not replicated:
@@ -613,7 +704,7 @@ func restore(data: Dictionary, replicated: bool = false) -> void:
 			continue
 		var unit = find_unit(int(item.id))
 		if unit != null and (unit.definition_id != item.def or unit.owner_id != int(item.owner)):
-			remove_unit(unit)
+			remove_unit(unit, false)
 			unit = null
 		if unit == null:
 			unit = spawn(item.def, int(item.owner), Vector2(item.x, item.y), int(item.id))
@@ -621,7 +712,7 @@ func restore(data: Dictionary, replicated: bool = false) -> void:
 		keep.append(unit)
 	for unit in units.duplicate():
 		if not unit in keep:
-			remove_unit(unit)
+			remove_unit(unit, false)
 	navigation.blockers.clear()
 	navigation.cache.clear()
 	for unit in units:
@@ -635,6 +726,7 @@ func restore(data: Dictionary, replicated: bool = false) -> void:
 	ai_enabled = bool(data.get("ai_enabled", true))
 	ai_timer = float(data.get("ai_timer", 0))
 	projectiles.assign(data.get("projectiles", []))
+	objectives.restore(data.get("objectives", {}))
 	fog.explored.clear()
 	for player in data.get("explored", {}):
 		var id := int(player)

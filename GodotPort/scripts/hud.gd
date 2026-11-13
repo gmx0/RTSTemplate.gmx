@@ -5,6 +5,7 @@ var root: Control
 var status: Label
 var selection_label: Label
 var notification: Label
+var objective_label: Label
 var actions: HFlowContainer
 var menu_panel: PanelContainer
 var address: LineEdit
@@ -72,6 +73,8 @@ func _ready() -> void:
 	row.add_child(details)
 	selection_label = Label.new()
 	details.add_child(selection_label)
+	objective_label = Label.new()
+	details.add_child(objective_label)
 	actions = HFlowContainer.new()
 	details.add_child(actions)
 	notification = Label.new()
@@ -106,6 +109,7 @@ func create_menu() -> void:
 	var modes := HBoxContainer.new()
 	box.add_child(modes)
 	button(modes, "New skirmish", func(): if world.network.authority(): world.start_match(); toggle_menu())
+	button(modes, "Economy race", func(): if world.network.authority(): world.start_match(false, [{"type": "earn", "amount": 250}]); toggle_menu())
 	button(modes, "Original rm_test", func(): if not world.network.active(): world.start_match(true); toggle_menu())
 	button(modes, "Steering demo", func():
 		if world.network.authority():
@@ -163,7 +167,7 @@ func refresh() -> void:
 	var credits := int(world.players[world.local_player].credits)
 	status.text = "P%s  ·  %s credits  ·  Power %+d  ·  %02d:%02d%s" % [world.local_player, credits, world.power(world.local_player), int(world.game_time) / 60, int(world.game_time) % 60, "  PAUSED" if world.paused else ""]
 	var list: Array = world.selected.filter(func(u): return is_instance_valid(u) and not u.dead)
-	var next_signature := str(list.map(func(u): return [u.net_id, u.templates.keys(), u.stats.get("abilities", {}), u.stats.get("products", []), u.stats.get("builds", []), u.owner_id, u.construction >= 1, not u.production.is_empty()]))
+	var next_signature := str(list.map(func(u): return [u.net_id, u.templates.keys(), u.stats.get("abilities", {}), u.stats.get("products", []), u.stats.get("builds", []), u.owner_id, u.definition_id, u.construction >= 1, not u.production.is_empty()]))
 	if next_signature != signature:
 		signature = next_signature
 		for child in actions.get_children():
@@ -203,6 +207,7 @@ func refresh() -> void:
 					break
 			widget.disabled = not ready or world.paused or not world.outcome.is_empty()
 			widget.tooltip_text = str(widget.text) if ready else reason.replace("_", " ").capitalize()
+	objective_label.text = "Sandbox" if world.sandbox else world.objectives.summary()
 	if list.is_empty():
 		selection_label.text = "No selection · Drag over your units. Select an HQ to train."
 	elif list.size() == 1:
@@ -211,6 +216,10 @@ func refresh() -> void:
 		if not unit.production.is_empty():
 			queue = " · Queue: %s (%0.1fs), %s total" % [world.content.definitions[unit.production[0].id].name, unit.production[0].remaining, unit.production.size()] + " - " + unit.production_status.replace("_", " ")
 		selection_label.text = "%s · HP %0.0f/%0.0f · %s%s%s" % [unit.stats.name, unit.hp, unit.hp_max, unit.state, " · Building %d%%" % (unit.construction * 100) if unit.construction < 1 else "", queue]
+		if unit.ammo >= 0:
+			selection_label.text += " | Ammo %d/%d" % [int(unit.ammo), int(unit.stats.get("ammo_capacity", 0))]
+		if unit.has_template("storage_transport"):
+			selection_label.text += " | Cargo %d/%d" % [world.Containment.occupied(unit), int(unit.stats.get("capacity", 0))]
 	else:
 		selection_label.text = "%s units selected · Right-click to issue a group order" % list.size()
 	notification.text = world.outcome if not world.outcome.is_empty() else ("Place %s · right-click cancels" % world.content.definitions[world.build_mode].name if not world.build_mode.is_empty() else ("Click a destination for " + world.command_mode if not world.command_mode.is_empty() else (world.message if world.message_time > 0 else "")))

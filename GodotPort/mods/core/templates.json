@@ -210,7 +210,7 @@
   "storage_transport": {
     "source": "obj_template_storage_transport",
     "requires": [],
-    "status": "extension"
+    "status": "behavior"
   },
   "structural": {
     "source": "obj_template_structural",
@@ -227,7 +227,7 @@
     "requires": [
       "supply"
     ],
-    "status": "extension"
+    "status": "behavior"
   },
   "target_repair": {
     "source": "obj_template_target_repair",

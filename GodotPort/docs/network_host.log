@@ -3,5 +3,5 @@ Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
 ERROR: Failed to read the root certificate store.
    at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
 ENet host result: OK
-ENet peer connected: 402275398
+ENet peer connected: 1871114017
 NETWORK HOST: remote command accepted=true

@@ -37,11 +37,11 @@ Health, regeneration, armor, shield, movement layer markers, visual image fallba
 Many original templates contain only comments or field initialization. Their IDs remain recognized by the registry and their original events remain in `source_inventory.json`. They do **not** acquire finished gameplay just by being listed:
 
 - attachment/attachment_upgrade/connect: attachment graph and upgrade application are extension points;
-- storage_transport/squad: transport loading and squad ownership are extension points;
+- squad: squad ownership remains an extension point; storage_transport now provides transport/garrison containment;
 - disguise/disruptor/detector_disguise/detector_psi: specialized stealth and disruption are extension points;
 - hero/interface/interface_strategy/interface_tactics: specialized control schemes are extension points;
 - netheral/orbital/turret: targeting/category support exists, with no separate orbital simulation or independently rotating attached turret;
-- terraform/sequences/supply_weapon_ammo/warhead: terrain editing, authored sequences, ammo supply logistics and splash warheads are extension points;
+- terraform/sequences/warhead: terrain editing, authored sequences and splash warheads remain extension points; supply_weapon_ammo now supports powered local rearming;
 - mindcontrol: ownership-change trait event exists, with no player-facing capture ability;
 - naval: navigation layer works, but the default map has no ship production unit;
 - GUI tree/card/clickmenu: native controls and the build/command cards replace the prototype roles; no bespoke tech-tree editor was present to convert.
@@ -51,6 +51,8 @@ Other deliberate limits: no Steam integration (none found in this template), no 
 ## First-priority extensions
 
 [RTS priority systems](RTS_PRIORITY_SYSTEMS.md) documents the Godot command-result boundary, capability-derived ability declarations, production cancellation and blocked exits, separated AI policy and gameplay disclosure. Multiple attached templates and shared flowfields remain the runtime architecture.
+
+[Next-priority systems](RTS_NEXT_SYSTEMS.md) adds opt-in depot cargo, transports/garrisons, in-place transformation, target domains, ammunition/status effects, configurable objectives and snapshot support.
 
 ## Reference tools
 

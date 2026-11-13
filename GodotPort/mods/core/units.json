@@ -55,7 +55,9 @@
       "structural",
       "constructor",
       "power_plant",
-      "construction"
+      "construction",
+      "storage_transport",
+      "supply_weapon_ammo"
     ],
     "hp": 180,
     "radius": 32,
@@ -63,10 +65,17 @@
     "power": 20,
     "products": [
       "core.units.engineer",
-      "core.units.infantry"
+      "core.units.infantry",
+      "core.units.transport",
+      "core.units.hauler",
+      "core.units.mcv"
     ],
     "cost": 0,
-    "build_time": 10
+    "build_time": 10,
+    "accepts_cargo": true,
+    "capacity": 4,
+    "rearm_range": 160,
+    "rearm_rate": 2
   },
   "core.structures.barracks": {
     "name": "Barracks",
@@ -180,7 +189,17 @@
     "build_time": 6,
     "requires": [
       "core.structures.barracks"
-    ]
+    ],
+    "ammo_capacity": 4,
+    "target_domains": [
+      "land",
+      "amphibious"
+    ],
+    "hit_status": {
+      "id": "suppressed",
+      "duration": 2,
+      "speed_multiplier": 0.7
+    }
   },
   "core.units.drone": {
     "name": "Scout drone",
@@ -248,5 +267,83 @@
     "stock": 1000,
     "radius": 20,
     "vision": 0
+  },
+  "core.units.transport": {
+    "name": "Transport",
+    "templates": [
+      "visual_image",
+      "health",
+      "terrestrial",
+      "storage_transport"
+    ],
+    "hp": 70,
+    "radius": 18,
+    "speed": 70,
+    "vision": 220,
+    "cost": 100,
+    "build_time": 6,
+    "capacity": 4,
+    "passenger_layers": [
+      "land"
+    ]
+  },
+  "core.units.hauler": {
+    "name": "Cargo harvester",
+    "templates": [
+      "visual_image",
+      "health",
+      "bipedal",
+      "engineer"
+    ],
+    "hp": 25,
+    "radius": 12,
+    "speed": 80,
+    "vision": 220,
+    "cost": 60,
+    "build_time": 4,
+    "requires_dropoff": true,
+    "harvest_capacity": 20,
+    "harvest_rate": 10,
+    "builds": []
+  },
+  "core.units.mcv": {
+    "name": "Mobile constructor",
+    "templates": [
+      "visual_image",
+      "health",
+      "terrestrial"
+    ],
+    "hp": 120,
+    "radius": 20,
+    "speed": 50,
+    "vision": 200,
+    "cost": 180,
+    "build_time": 9,
+    "transforms_to": "core.structures.outpost",
+    "transform_label": "Deploy outpost"
+  },
+  "core.structures.outpost": {
+    "name": "Outpost",
+    "templates": [
+      "visual_image",
+      "health",
+      "structural",
+      "constructor",
+      "power_plant",
+      "construction"
+    ],
+    "hp": 180,
+    "radius": 28,
+    "vision": 260,
+    "cost": 0,
+    "build_time": 1,
+    "power": 10,
+    "accepts_cargo": true,
+    "products": [
+      "core.units.infantry",
+      "core.units.hauler"
+    ],
+    "transforms_to": "core.units.mcv",
+    "transform_label": "Pack up"
   }
 }

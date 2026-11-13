@@ -40,6 +40,8 @@ Select one engineer to show construction buttons. Choose a building and click cl
 
 See [first-priority RTS systems](docs/RTS_PRIORITY_SYSTEMS.md) for command results, declared abilities/hotkeys, production refunds and pause reasons, AI policy ownership, and fog disclosure rules. Select a producer with a queue to cancel its first item for an exact-cost refund.
 
+See [next-priority RTS systems](docs/RTS_NEXT_SYSTEMS.md) for transports/garrisons, depot cargo, deploy/pack, ammunition/status effects and objective rules. HQ can train a Transport, Cargo harvester or Mobile constructor. Right-click a friendly host to board; select the host to Unload. Mobile constructors expose Deploy outpost / Pack up. Shield troopers rearm near HQ. Menu / Help also offers an Economy race.
+
 ## Content and code
 
 Edit `mods/core/units.json` to change unit definitions. `templates` contains stable template IDs corresponding to the original `obj_template_*` names. `image` selects a stable ID; `image_path` can reference a project asset or an external PNG. A missing image falls back to the original `spr_unit_0.png`. All 155 original sprite frames are in `assets/`. The optional external `mods/core/images/units/infantry.png` was not present in the source checkout, so the fallback is intentional.

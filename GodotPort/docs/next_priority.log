@@ -1,0 +1,43 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+PASS: new transport, harvester and mobile-constructor content validates
+PASS: boarding command reserves a passenger slot
+PASS: incoming reservation prevents overbooking
+PASS: replacement order releases boarding reservation
+PASS: passenger boards on approach without losing identity
+PASS: contained passenger is absent from spatial and disclosure consumers
+PASS: contained unit cannot receive direct world orders
+PASS: containment survives JSON snapshot restore
+PASS: blocked unload retains cargo
+PASS: clear unload restores passenger to world
+PASS: static garrison reuses transport boarding
+PASS: isolated carrier accepts its passenger
+PASS: carrier destruction evacuates passengers to safe world positions
+PASS: capture releases cargo without transferring passenger allegiance
+PASS: logistics harvester carries cargo without remote credit payout
+PASS: depot delivery credits once and resumes harvest
+PASS: earned-income objective counts delivered income only
+PASS: missing depot retains paid cargo and a retryable delivery intent
+PASS: restored depot resumes waiting cargo delivery
+PASS: mobile constructor deploys at a legal site
+PASS: transform preserves ID, health ratio, XP, manual traits and selection
+PASS: deployed structure blocks navigation
+PASS: save/load retains transformed form and manually attached traits
+PASS: pack removes structure blocker and restores mobile form
+PASS: blocked transform leaves original form intact
+PASS: weapon domain rejects aircraft for ground-only weapon
+PASS: empty ammunition prevents firing
+PASS: weapon consumes ammunition once per fired shot
+PASS: projectile applies declared temporary combat status
+PASS: temporary stun blocks command admission
+PASS: temporary effects expire on simulation clock
+PASS: declared friendly support replenishes ammunition
+PASS: ammunition and statuses survive snapshot
+PASS: income objective remains incomplete below threshold
+PASS: income objective triggers at exact threshold
+PASS: simultaneous survival completion resolves as draw
+PASS: default objective retains destroy-enemy-HQ victory
+PASS: objective statistics survive snapshot
+RESULT: 38 passed; 0 failed
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)

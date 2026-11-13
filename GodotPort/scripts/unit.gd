@@ -25,6 +25,11 @@ var target_id := 0
 var cargo := 0.0
 var stock := 0.0
 var production: Array[Dictionary] = []
+var host_id := 0
+var reserved_host_id := 0
+var harvest_target_id := 0
+var ammo := -1.0
+var effects: Dictionary = {}
 var production_status := "idle"
 var ability_cooldowns: Dictionary = {}
 var revealed_until: Dictionary = {}
@@ -43,6 +48,7 @@ func setup(game, id: String, player: int, point: Vector2, network_id: int) -> vo
 	stats = world.content.definitions[id].duplicate(true)
 	radius = float(stats.get("radius", 10))
 	stock = float(stats.get("stock", 0))
+	ammo = float(stats.get("ammo_capacity", -1))
 	for template_id in stats.get("templates", []):
 		add_template(template_id)
 	sprite = world.content.images.get(stats.get("image", ""))
@@ -84,6 +90,8 @@ func movement_layer() -> String:
 
 func order(command: Dictionary, queued: bool = false) -> void:
 	if not queued:
+		reserved_host_id = 0
+		harvest_target_id = 0
 		commands.clear()
 		target_id = 0
 	if command.type in ["stop", "hold"]:
@@ -98,10 +106,22 @@ func order(command: Dictionary, queued: bool = false) -> void:
 func simulate(delta: float) -> void:
 	if dead:
 		return
+	if host_id != 0:
+		var host = world.find_unit(host_id)
+		if host != null:
+			position = host.position
+		return
+	for effect in effects.keys():
+		if float(effects[effect].until) <= world.game_time:
+			effects.erase(effect)
+	if is_stunned():
+		velocity = Vector2.ZERO
+		return
 	since_hit += delta
 	for ability in ability_cooldowns:
 		ability_cooldowns[ability] = maxf(0, float(ability_cooldowns[ability]) - delta)
 	cooldown = maxf(0, cooldown - delta)
+	tick_rearm(delta)
 	for template in templates.values():
 		if construction >= 1.0 or template.id in ["health", "construction"]:
 			template.tick(delta)
@@ -121,12 +141,23 @@ func simulate(delta: float) -> void:
 		var command: Dictionary = commands[0]
 		state = command.type
 		var destination := Vector2(float(command.get("x", position.x)), float(command.get("y", position.y)))
-		if command.type in ["attack", "repair", "harvest"]:
+		if command.type in ["attack", "repair", "harvest", "enter", "deliver"]:
 			var target = world.find_unit(int(command.get("target", 0)))
 			if target == null or target.dead:
+				if command.type == "deliver":
+					state = "waiting_for_depot"
+					return
 				commands.pop_front()
 				return
 			destination = target.position
+			if command.type == "enter":
+				if not world.Containment.compatible(self, target):
+					reserved_host_id = 0
+					commands.pop_front()
+					return
+				if position.distance_to(destination) <= radius + target.radius + 14:
+					world.Containment.board(self, target)
+					return
 			if command.type == "attack":
 				if not world.entity_disclosed(owner_id, target):
 					commands.pop_front()
@@ -158,6 +189,8 @@ func simulate(delta: float) -> void:
 func move_direction(direction: Vector2, delta: float) -> void:
 	var separation: Vector2 = Steering.separation(self, world.targeting.query(position, 65))
 	var speed := float(stats.get("speed", 70))
+	for effect in effects.values():
+		speed *= float(effect.get("speed_multiplier", 1))
 	velocity = (direction + separation * 1.5).limit_length() * speed
 	var next := position + velocity * delta
 	if world.navigation.passable(world.navigation.cell(next), movement_layer()):
@@ -175,24 +208,29 @@ func tick_weapon(_delta: float) -> void:
 		return
 	var target = world.find_unit(target_id)
 	var attack_range := float(stats.get("range", 140))
-	if target == null or target.dead or target.owner_id == owner_id or not world.entity_disclosed(owner_id, target) or position.distance_to(target.position) > attack_range:
+	if target == null or target.dead or not world.can_target(self, target) or position.distance_to(target.position) > attack_range:
 		target = null
 		for candidate in world.targeting.query(position, attack_range):
-			if candidate.owner_id > 0 and candidate.owner_id != owner_id and world.entity_disclosed(owner_id, candidate):
+			if world.can_target(self, candidate):
 				if target == null or position.distance_squared_to(candidate.position) < position.distance_squared_to(target.position):
 					target = candidate
 	if target == null:
 		return
 	target_id = target.net_id
-	if cooldown <= 0:
+	if cooldown <= 0 and (ammo < 0 or ammo >= 1):
+		if ammo >= 0:
+			ammo -= 1
 		cooldown = float(stats.get("cooldown", 0.8))
 		world.fire(self, target, float(stats.get("damage", 2)) * (1 + mini(experience, 10) * 0.05))
 
 func damage(amount: float, attacker = null) -> void:
-	if dead or not has_template("health"):
+	if dead or host_id != 0 or not has_template("health"):
 		return
 	since_hit = 0
-	amount = maxf(0.1, amount - float(stats.get("armor", 0)))
+	var armor := float(stats.get("armor", 0))
+	for effect in effects.values():
+		armor += float(effect.get("armor_bonus", 0))
+	amount = maxf(0.1, amount - armor)
 	var absorbed := minf(shield, amount)
 	shield -= absorbed
 	hp -= amount - absorbed
@@ -208,27 +246,94 @@ func tick_engineer(delta: float) -> void:
 	if commands.is_empty():
 		return
 	var command: Dictionary = commands[0]
-	var target = world.find_unit(int(command.get("target", 0)))
-	if target == null or target.dead or not world.entity_disclosed(owner_id, target):
+	if command.type == "harvest" and cargo >= float(stats.get("harvest_capacity", 10)) and stats.get("requires_dropoff", false):
+		begin_delivery(int(command.get("target", 0)))
 		return
-	if position.distance_to(target.position) > radius + target.radius + 22:
+	var target = world.find_unit(int(command.get("target", 0)))
+	if target == null or target.dead:
+		if command.type == "deliver":
+			begin_delivery(harvest_target_id)
+		elif cargo > 0 and stats.get("requires_dropoff", false):
+			begin_delivery(0)
+		return
+	if not world.entity_disclosed(owner_id, target) or position.distance_to(target.position) > radius + target.radius + 22:
+		return
+	if command.type == "deliver":
+		if target.owner_id != owner_id or not target.stats.get("accepts_cargo", false) or target.construction < 1:
+			begin_delivery(harvest_target_id)
+			return
+		credit_cargo()
+		commands.pop_front()
+		var resource = world.find_unit(harvest_target_id)
+		if resource != null and resource.stock > 0:
+			commands.push_front({"type": "harvest", "target": resource.net_id})
+		harvest_target_id = 0
 		return
 	if command.type == "repair" and target.owner_id == owner_id:
 		target.hp = minf(target.hp_max, target.hp + delta * 6)
 		if target.hp >= target.hp_max:
 			commands.pop_front()
 	if command.type == "harvest" and target.has_template("resource"):
-		var amount := minf(target.stock, delta * 6)
+		var capacity := float(stats.get("harvest_capacity", 10))
+		var amount := minf(target.stock, minf(delta * float(stats.get("harvest_rate", 6)), maxf(0, capacity - cargo)))
 		cargo += amount
 		target.stock -= amount
-		if cargo >= 10 or target.stock <= 0:
-			world.players[owner_id].credits += int(cargo)
-			cargo = 0
-			world.bus.send("resources_changed", owner_id)
-		if target.stock <= 0:
-			commands.pop_front()
+		if cargo >= capacity or target.stock <= 0:
+			if stats.get("requires_dropoff", false):
+				begin_delivery(target.net_id if target.stock > 0 else 0)
+			else:
+				credit_cargo()
+				if target.stock <= 0:
+					commands.pop_front()
+
+func credit_cargo() -> void:
+	var payment := int(floor(cargo + 0.00001))
+	world.players[owner_id].credits += payment
+	cargo = maxf(0, cargo - payment)
+	world.objectives.income(owner_id, payment)
+	world.bus.send("resources_changed", owner_id)
+
+func begin_delivery(resource_id: int) -> void:
+	var depot = null
+	for candidate in world.units:
+		if candidate.owner_id == owner_id and not candidate.dead and candidate.construction >= 1 and candidate.host_id == 0 and candidate.stats.get("accepts_cargo", false):
+			if depot == null or position.distance_squared_to(candidate.position) < position.distance_squared_to(depot.position):
+				depot = candidate
+	harvest_target_id = resource_id
+	if depot == null:
+		state = "waiting_for_depot"
+		if commands.is_empty():
+			commands.append({"type": "deliver", "target": 0})
+		else:
+			commands[0] = {"type": "deliver", "target": 0}
+		return
+	if not commands.is_empty():
+		commands[0] = {"type": "deliver", "target": depot.net_id}
+	else:
+		commands.append({"type": "deliver", "target": depot.net_id})
+
+func apply_status(id: String, duration: float, modifiers: Dictionary) -> void:
+	if duration > 0:
+		var effect := modifiers.duplicate(true)
+		effect.until = world.game_time + duration
+		effects[id] = effect
+
+func is_stunned() -> bool:
+	return effects.values().any(func(effect): return float(effect.until) > world.game_time and effect.get("stunned", false))
+
+func tick_rearm(delta: float) -> void:
+	if ammo < 0 or ammo >= float(stats.get("ammo_capacity", -1)):
+		return
+	for source in world.units:
+		if source.dead or source.host_id != 0 or source.owner_id != owner_id or source.construction < 1 or not source.has_template("supply_weapon_ammo") or world.power(owner_id) < 0:
+			continue
+		if position.distance_to(source.position) <= float(source.stats.get("rearm_range", 140)):
+			ammo = minf(float(stats.ammo_capacity), ammo + delta * float(source.stats.get("rearm_rate", 1)))
+			return
 
 func production_check(id: String) -> String:
+	if is_stunned():
+		return "status_blocked"
 	if dead or not has_template("constructor") or construction < 1 or not id in stats.get("products", []):
 		return "unavailable"
 	if production.size() >= int(stats.get("queue_limit", 8)):
@@ -282,7 +387,7 @@ func production_exit(id: String) -> Vector2:
 			if not clear:
 				continue
 			for other in world.units:
-				if not other.dead and point.distance_to(other.position) < product_radius + other.radius + 2:
+				if not other.dead and other.host_id == 0 and point.distance_to(other.position) < product_radius + other.radius + 2:
 					clear = false
 					break
 			if clear:
@@ -314,9 +419,17 @@ func tick_production(delta: float) -> void:
 	world.bus.send("production_completed", {"producer": net_id, "unit": unit.net_id})
 
 func snapshot() -> Dictionary:
-	return {"id": net_id, "def": definition_id, "owner": owner_id, "x": position.x, "y": position.y, "hp": hp, "shield": shield, "xp": experience, "construction": construction, "stock": stock, "commands": commands, "state": state, "production": production, "rally": [rally.x, rally.y], "rotation": rotation, "cargo": cargo, "cooldown": cooldown, "ability_cooldowns": ability_cooldowns.duplicate(true), "revealed_until": revealed_until.duplicate(true), "production_status": production_status}
+	return {"id": net_id, "def": definition_id, "owner": owner_id, "x": position.x, "y": position.y, "hp": hp, "shield": shield, "xp": experience, "construction": construction, "stock": stock, "commands": commands, "state": state, "production": production, "rally": [rally.x, rally.y], "rotation": rotation, "cargo": cargo, "cooldown": cooldown, "ability_cooldowns": ability_cooldowns.duplicate(true), "revealed_until": revealed_until.duplicate(true), "production_status": production_status, "host": host_id, "reservation": reserved_host_id, "harvest_target": harvest_target_id, "ammo": ammo, "effects": effects.duplicate(true), "templates": templates.keys()}
 
 func restore(data: Dictionary) -> void:
+	if data.has("templates"):
+		for component in templates.values():
+			component.detach()
+		templates.clear()
+		categories.clear()
+		shield_max = 0
+		for component_id in data.templates:
+			add_template(str(component_id))
 	position = Vector2(data.x, data.y)
 	hp = float(data.hp)
 	shield = float(data.get("shield", 0))
@@ -333,9 +446,14 @@ func restore(data: Dictionary) -> void:
 	ability_cooldowns = data.get("ability_cooldowns", {}).duplicate(true)
 	revealed_until = data.get("revealed_until", {}).duplicate(true)
 	production_status = str(data.get("production_status", "idle"))
+	host_id = int(data.get("host", 0))
+	reserved_host_id = int(data.get("reservation", 0))
+	harvest_target_id = int(data.get("harvest_target", 0))
+	ammo = float(data.get("ammo", stats.get("ammo_capacity", -1)))
+	effects = data.get("effects", {}).duplicate(true)
 
 func _draw() -> void:
-	if dead or world == null or not world.can_see(world.local_player, self):
+	if dead or host_id != 0 or world == null or not world.can_see(world.local_player, self):
 		return
 	var color: Color = world.player_color(owner_id)
 	if selected:

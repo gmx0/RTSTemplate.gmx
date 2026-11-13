@@ -8,7 +8,7 @@ func rebuild(units: Array) -> void:
 	categories.clear()
 	buckets.clear()
 	for unit in units:
-		if not is_instance_valid(unit) or unit.dead:
+		if not is_instance_valid(unit) or unit.dead or unit.host_id != 0:
 			continue
 		var key := Vector2i(unit.position / BUCKET)
 		if not buckets.has(key):
@@ -26,7 +26,7 @@ func query(point: Vector2, radius: float, category: String = "") -> Array:
 	for y in range(start.y, finish.y + 1):
 		for x in range(start.x, finish.x + 1):
 			for unit in buckets.get(Vector2i(x, y), []):
-				if is_instance_valid(unit) and not unit.dead and point.distance_to(unit.position) <= radius:
+				if is_instance_valid(unit) and not unit.dead and unit.host_id == 0 and point.distance_to(unit.position) <= radius:
 					if category.is_empty() or unit in categories.get(category, []):
 						found.append(unit)
 	return found

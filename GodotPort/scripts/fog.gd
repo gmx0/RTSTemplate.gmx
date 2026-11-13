@@ -11,7 +11,7 @@ func update(units: Array, players: Array) -> void:
 			explored[id] = {}
 		visible[id] = {}
 	for unit in units:
-		if not is_instance_valid(unit) or unit.dead or unit.construction < 1:
+		if not is_instance_valid(unit) or unit.dead or unit.host_id != 0 or unit.construction < 1:
 			continue
 		reveal(unit.owner_id, unit.position, float(unit.stats.get("vision", 190)))
 

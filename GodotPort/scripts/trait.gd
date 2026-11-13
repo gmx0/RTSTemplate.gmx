@@ -50,4 +50,4 @@ func event(name: String, payload: Variant = null) -> void:
 		entity.experience += 1
 		entity.world.bus.send("veterancy", {"id": entity.net_id, "xp": entity.experience})
 	if id == "mindcontrol" and name == "capture" and payload is int:
-		entity.owner_id = payload
+		entity.world.change_owner(entity, payload)

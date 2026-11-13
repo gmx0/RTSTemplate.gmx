@@ -22,6 +22,12 @@ static func declarations(unit) -> Dictionary:
 		if unit.has_template("resource"):
 			continue
 		result[id] = declaration.duplicate(true)
+	if unit.has_template("storage_transport"):
+		result["unload"] = {"label": "Unload", "target": "none"}
+	elif not unit.is_structure() and not unit.has_template("resource"):
+		result["enter"] = {"label": "Enter transport", "target": "unit"}
+	if unit.stats.has("transforms_to"):
+		result["deploy"] = {"label": unit.stats.get("transform_label", "Deploy"), "target": "none"}
 	# Custom aliases reuse supported executors, with declared cost and cooldown.
 	for id in unit.stats.get("abilities", {}):
 		var config: Dictionary = unit.stats.abilities[id]
@@ -37,7 +43,7 @@ static func available(unit, id: String) -> String:
 	var declared := declarations(unit)
 	if not declared.has(id):
 		return "unavailable"
-	if unit.dead or unit.construction < 1:
+	if unit.dead or unit.host_id != 0 or unit.construction < 1:
 		return "unavailable"
 	if float(unit.ability_cooldowns.get(id, 0)) > 0:
 		return "cooldown"
