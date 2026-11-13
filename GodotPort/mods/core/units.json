@@ -1,0 +1,252 @@
+{
+  "core.units.infantry": {
+    "name": "Infantry",
+    "templates": [
+      "visual_image",
+      "health",
+      "cost",
+      "veterancy",
+      "bipedal",
+      "weapon"
+    ],
+    "hp": 10,
+    "speed": 85,
+    "radius": 10,
+    "vision": 230,
+    "damage": 2,
+    "range": 145,
+    "cooldown": 0.8,
+    "cost": 40,
+    "build_time": 3,
+    "image": "core.units.infantry",
+    "image_path": "res://mods/core/images/units/infantry.png"
+  },
+  "core.units.engineer": {
+    "name": "Engineer",
+    "templates": [
+      "visual_image",
+      "health",
+      "cost",
+      "veterancy",
+      "bipedal",
+      "engineer",
+      "target_repair"
+    ],
+    "hp": 10,
+    "speed": 75,
+    "radius": 10,
+    "vision": 210,
+    "cost": 50,
+    "build_time": 4,
+    "builds": [
+      "core.structures.barracks",
+      "core.structures.turret",
+      "core.structures.power",
+      "core.structures.radar"
+    ]
+  },
+  "core.structures.hq": {
+    "name": "Headquarters",
+    "templates": [
+      "visual_image",
+      "health",
+      "cost",
+      "veterancy",
+      "structural",
+      "constructor",
+      "power_plant",
+      "construction"
+    ],
+    "hp": 180,
+    "radius": 32,
+    "vision": 300,
+    "power": 20,
+    "products": [
+      "core.units.engineer",
+      "core.units.infantry"
+    ],
+    "cost": 0,
+    "build_time": 10
+  },
+  "core.structures.barracks": {
+    "name": "Barracks",
+    "templates": [
+      "visual_image",
+      "health",
+      "cost",
+      "veterancy",
+      "structural",
+      "constructor",
+      "power_user",
+      "construction"
+    ],
+    "hp": 100,
+    "radius": 24,
+    "vision": 220,
+    "power": -5,
+    "cost": 100,
+    "build_time": 7,
+    "products": [
+      "core.units.infantry",
+      "core.units.heavy",
+      "core.units.drone",
+      "core.units.amphibian"
+    ]
+  },
+  "core.structures.turret": {
+    "name": "Turret",
+    "templates": [
+      "visual_image",
+      "health",
+      "cost",
+      "veterancy",
+      "structural",
+      "weapon",
+      "power_user",
+      "construction"
+    ],
+    "hp": 65,
+    "radius": 18,
+    "vision": 240,
+    "power": -4,
+    "cost": 80,
+    "build_time": 6,
+    "range": 230,
+    "damage": 3,
+    "cooldown": 0.7
+  },
+  "core.structures.power": {
+    "name": "Power plant",
+    "templates": [
+      "visual_image",
+      "health",
+      "cost",
+      "veterancy",
+      "structural",
+      "power_plant",
+      "construction"
+    ],
+    "hp": 70,
+    "radius": 24,
+    "vision": 180,
+    "power": 20,
+    "cost": 70,
+    "build_time": 6
+  },
+  "core.structures.radar": {
+    "name": "Radar",
+    "templates": [
+      "visual_image",
+      "health",
+      "cost",
+      "veterancy",
+      "structural",
+      "radar",
+      "detector_cloak",
+      "construction"
+    ],
+    "hp": 55,
+    "radius": 20,
+    "vision": 400,
+    "power": -5,
+    "cost": 90,
+    "build_time": 7,
+    "radar_range": 400
+  },
+  "core.units.heavy": {
+    "name": "Shield trooper",
+    "templates": [
+      "visual_image",
+      "health",
+      "cost",
+      "veterancy",
+      "bipedal",
+      "weapon",
+      "armor",
+      "shield",
+      "health_regen"
+    ],
+    "hp": 24,
+    "shield": 12,
+    "armor": 0.5,
+    "regen": 0.4,
+    "speed": 55,
+    "radius": 13,
+    "vision": 230,
+    "range": 160,
+    "damage": 4,
+    "cooldown": 1.2,
+    "cost": 90,
+    "build_time": 6,
+    "requires": [
+      "core.structures.barracks"
+    ]
+  },
+  "core.units.drone": {
+    "name": "Scout drone",
+    "templates": [
+      "visual_image",
+      "health",
+      "cost",
+      "veterancy",
+      "aerial",
+      "weapon",
+      "radar"
+    ],
+    "hp": 12,
+    "speed": 125,
+    "radius": 9,
+    "vision": 330,
+    "radar_range": 330,
+    "range": 130,
+    "damage": 1,
+    "cooldown": 0.5,
+    "cost": 70,
+    "build_time": 5
+  },
+  "core.units.amphibian": {
+    "name": "Amphibious scout",
+    "templates": [
+      "visual_image",
+      "health",
+      "cost",
+      "veterancy",
+      "amphibial",
+      "weapon"
+    ],
+    "hp": 18,
+    "speed": 70,
+    "radius": 12,
+    "vision": 250,
+    "range": 140,
+    "damage": 2,
+    "cooldown": 0.8,
+    "cost": 65,
+    "build_time": 4
+  },
+  "core.units.flock": {
+    "name": "Flocking drone",
+    "templates": [
+      "visual_image",
+      "health",
+      "aerial"
+    ],
+    "hp": 10,
+    "speed": 60,
+    "radius": 8,
+    "vision": 200,
+    "flock": true,
+    "cost": 0,
+    "build_time": 1
+  },
+  "core.resources.crystal": {
+    "name": "Crystal deposit",
+    "templates": [
+      "resource",
+      "supply"
+    ],
+    "stock": 1000,
+    "radius": 20,
+    "vision": 0
+  }
+}

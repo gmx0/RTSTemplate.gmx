@@ -1,0 +1,35 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+PASS: mixed foreign source command rejects before any mutation
+PASS: unsupported action does not report success
+PASS: paused command has stable rejection code
+PASS: custom declared ability generates a button
+PASS: custom declared hotkey arms its targeting mode
+PASS: declared alias uses the shared movement executor
+PASS: ability charges declared cost once
+PASS: cooldown rejection does not charge again
+PASS: ability cooldown survives JSON save/network snapshot
+PASS: ability cooldown uses simulation delta
+PASS: production enters through shared admission
+PASS: cancellation refunds the exact paid cost
+PASS: repeated cancellation cannot refund twice
+PASS: full queue has an explicit rejection result
+PASS: power deficit pauses without losing progress
+PASS: lost prerequisite pauses paid work
+PASS: blocked local exits retain completed product without teleporting
+PASS: blocked production state survives snapshot
+PASS: clearing an exit spawns exactly one completed product
+PASS: debug fog rendering grants no gameplay disclosure
+PASS: debug fog toggle cannot authorize hidden attacks
+PASS: current sight does not bypass cloak
+PASS: compatible powered detector discloses cloak in current sight
+PASS: unpowered detector cannot disclose cloak
+PASS: Reveal is participant-relative
+PASS: Reveal expiry restores cloak admission
+PASS: AI observation excludes undisclosed opponents
+PASS: AI evaluation is read-only
+PASS: AI economy and production use logged shared commands
+PASS: AI records canonical command results
+RESULT: 30 passed; 0 failed
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
