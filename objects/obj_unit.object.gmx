@@ -44,6 +44,8 @@ unit_command_target=noone;
 unit_command_x=x;
 unit_command_y=y;
 //alarm[0]=1; //commented out because unit build performs the create event
+
+rts_unit_init();
 </string>
           </argument>
         </arguments>
@@ -90,11 +92,14 @@ unit_command_y=y;
           <argument>
             <kind>1</kind>
             <string>///change to an alarm event or similar for pause and staggered execution?
-if alarm[0]
+if alarm[0]&gt;0
 exit;
 
+if game_ispaused() exit;
 templates_event_step_normal();
 
+
+rts_unit_step();
 </string>
           </argument>
         </arguments>
@@ -117,21 +122,47 @@ templates_event_step_normal();
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if alarm[0]
-exit;
-
-//draw_self();
-templates_event_draw_normal();
-
- //if unit_select
- //draw_circle(x,y,sprite_width*0.5,true); 
- 
-
+            <string>if !instance_exists(global.rts_viewer) exit;
+if !rts_visible(global.rts_viewer,id) exit;
+var tint;
+tint=c_gray; if instance_exists(unit_owner) tint=unit_owner.player_color;
+draw_set_color(tint);
+image_blend=tint;
+if unit_blocks draw_rectangle(x-14,y-14,x+14,y+14,false);
+else draw_circle(x,y,9,false);
+if ds_list_find_index(template_list,obj_template_visual_image)&gt;=0 templates_event_draw_normal();
+if unit_select {draw_set_color(c_lime); draw_circle(x,y,18,true);}
+draw_set_color(c_red); draw_rectangle(x-14,y-21,x+14,y-18,false);
+draw_set_color(c_lime); draw_rectangle(x-14,y-21,x-14+28*clamp(unit_hp/unit_hp_max,0,1),y-18,false);
+draw_set_color(c_white);
 </string>
           </argument>
         </arguments>
       </action>
     </event>
+  <event eventtype="1" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname />
+        <codestring />
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>rts_unit_end();</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+
   </events>
   <PhysicsObject>0</PhysicsObject>
   <PhysicsObjectSensor>0</PhysicsObjectSensor>

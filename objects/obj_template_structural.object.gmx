@@ -27,7 +27,8 @@
             <kind>1</kind>
             <string>event_inherited();
 targeting_map_list_ins_add("Structural",id);
-</string>
+
+if !unit_blocks {unit_blocks=true; rts_nav_block(x,y,1);}</string>
           </argument>
         </arguments>
       </action>

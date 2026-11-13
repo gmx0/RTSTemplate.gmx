@@ -46,7 +46,8 @@ if !variable_instance_exists(id,"weap_rate")
 weap_rate=1;
 if !variable_instance_exists(id,"weap_cd") //countdown
 weap_cd=0;
-</string>
+
+rts_ability_set("attack",true);</string>
           </argument>
         </arguments>
       </action>

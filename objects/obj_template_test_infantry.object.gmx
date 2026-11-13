@@ -25,26 +25,17 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>/*
-Units and Entities have Templates
-Units and Entities can have Multiple Templates? (For example, attaching a radar to multiple units or structures)
-Templates can have Templates? (multiple parent logic, amkes sure no conflict)
-Templates never appear in-game, only Units/Entities
-You attach as many Templates you want to the single Faction Unit/Entity, then build said Unit
-*/
-
-//the main template object is declated OUTSIDE 
-//by a CONSTRUCTOR using unit_build(x,y,obj_template_test)
-
-unit_image_id="core.units.infantry";
-unit_template_add(id,obj_template_visual_image);
-unit_template_add(id,obj_template_bipedal);
-unit_template_add(id,obj_template_health);
-unit_hp=10;
-unit_hp_max=10;
-
-unit_template_add(id,obj_template_cost);
-unit_template_add(id,obj_template_veterancy);
+            <string>// Legacy template wrapper: stats/composition are now loaded from core data.
+var definition,list,i;
+if ds_map_exists(global.rts_definitions,"core.units.infantry") {
+ definition=global.rts_definitions[? "core.units.infantry"];
+ unit_def_id="core.units.infantry"; unit_name=definition[? "name"];
+ unit_image_id=definition[? "image"]; list=definition[? "templates"];
+ for(i=0;i&lt;ds_list_size(list);i+=1) templates_add(list[| i],true);
+ unit_hp=definition[? "hp"]; unit_hp_max=unit_hp;
+ unit_vision=definition[? "vision"]; unit_move_speed=definition[? "speed"];
+ unit_damage=definition[? "damage"]; unit_range=definition[? "range"]; unit_fire_delay=definition[? "cooldown"];
+}
 </string>
           </argument>
         </arguments>

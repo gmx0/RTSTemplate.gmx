@@ -11,11 +11,8 @@
   <colour>12632256</colour>
   <showcolour>-1</showcolour>
   <code>instance_create(0,0,obj_control);
-instance_create(0,0,obj_flowfield);
 instance_create(0,0,obj_targeting);
-player_add(obj_player_1,0,obj_unit_1,c_white);
-
-unit_build(room_width*0.5,room_height*0.5,obj_unit,obj_template_test_infantry);</code>
+rts_demo_setup();</code>
   <enableViews>0</enableViews>
   <clearViewBackground>-1</clearViewBackground>
   <clearDisplayBuffer>-1</clearDisplayBuffer>

@@ -1,3 +1,3 @@
-//returns if game is paused or not
-
-return true;
+// Shared runtime pause state.
+if !variable_global_exists("pause") return false;
+return global.pause;

@@ -27,16 +27,17 @@
             <kind>1</kind>
             <string>//Multiple types of constructors
 //Placement type constructor within a radius like CnC(can be any factories as well, since it's just placement but within the factory)
-//Builder worker type constructor that is absorbed while building like Warcraft 
+//Builder worker type constructor that is absorbed while building like Warcraft
 //Builder worker type constructor that is NOT absorbed while building like Age of Empires or CnC Generals
 //Deployment type constructor like Nanoconstrucotrs in Red Alert 3 Japan (can be something like CABAL Core Defender as well)
-//Converter type constructor where units are converted into another unit like Battle Realms 
+//Converter type constructor where units are converted into another unit like Battle Realms
 
 //Multiple types of constructed as well
 //Instant after placement construction, like in CnC, the object pops up immediately after a timer
 //Ongoing after placement construction, like in Age of Empires or CnC Generals, the object exists but is disabled until finished
 event_inherited();
-</string>
+
+rts_ability_set("produce",true);</string>
           </argument>
         </arguments>
       </action>
@@ -60,7 +61,7 @@ event_inherited();
             <kind>1</kind>
             <string>event_inherited();
 //FOR FUTURE
-//draw the construction animation 
+//draw the construction animation
 
 </string>
           </argument>

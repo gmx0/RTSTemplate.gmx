@@ -27,6 +27,8 @@
             <kind>1</kind>
             <string>event_inherited();
 targeting_map_list_ins_add("Bipedal",id);
+
+rts_ability_set("move",true);
 </string>
           </argument>
         </arguments>

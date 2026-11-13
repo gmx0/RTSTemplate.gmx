@@ -72,7 +72,9 @@ player_unit=obj_unit_1;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>x=mouse_x;
+            <string>if mouse_y&lt;78 exit;
+if mouse_x&gt;=812 &amp;&amp; mouse_y&gt;=600 exit;
+x=mouse_x;
 y=mouse_y;
 
 event_user(1); //select units in select box
@@ -98,7 +100,9 @@ event_user(1); //select units in select box
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>x=mouse_x;
+            <string>if mouse_y&lt;78 exit;
+if mouse_x&gt;=812 &amp;&amp; mouse_y&gt;=600 exit;
+x=mouse_x;
 y=mouse_y;
 event_user(0); //start the select box
 </string>
@@ -106,7 +110,7 @@ event_user(0); //start the select box
         </arguments>
       </action>
     </event>
-    <event eventtype="6" enumb="51">
+    <event eventtype="6" enumb="54">
       <action>
         <libid>1</libid>
         <id>603</id>
@@ -123,9 +127,13 @@ event_user(0); //start the select box
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>//it's global right button, not pressed, so that units receive real time commands
+            <string>if mouse_y&lt;78 exit;
 x=mouse_x;
 y=mouse_y;
+if mouse_x&gt;=812 &amp;&amp; mouse_x&lt;=1004 &amp;&amp; mouse_y&gt;=600 &amp;&amp; mouse_y&lt;=744 {
+ x=(mouse_x-812)*room_width/192;
+ y=(mouse_y-600)*room_height/144;
+}
 
 event_user(2); //ordert units in x,y coordinates
 </string>

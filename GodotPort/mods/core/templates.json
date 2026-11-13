@@ -1,0 +1,289 @@
+{
+  "template": {
+    "source": "obj_template",
+    "requires": [],
+    "status": "extension"
+  },
+  "aerial": {
+    "source": "obj_template_aerial",
+    "requires": [],
+    "status": "movement/category"
+  },
+  "amphibial": {
+    "source": "obj_template_amphibial",
+    "requires": [],
+    "status": "movement/category"
+  },
+  "armor": {
+    "source": "obj_template_armor",
+    "requires": [
+      "health"
+    ],
+    "status": "behavior"
+  },
+  "attachment": {
+    "source": "obj_template_attachment",
+    "requires": [],
+    "status": "extension"
+  },
+  "attachment_upgrade": {
+    "source": "obj_template_attachment_upgrade",
+    "requires": [],
+    "status": "extension"
+  },
+  "bipedal": {
+    "source": "obj_template_bipedal",
+    "requires": [],
+    "status": "movement/category"
+  },
+  "connect": {
+    "source": "obj_template_connect",
+    "requires": [],
+    "status": "extension"
+  },
+  "construction": {
+    "source": "obj_template_construction",
+    "requires": [],
+    "status": "behavior"
+  },
+  "constructor": {
+    "source": "obj_template_constructor",
+    "requires": [],
+    "status": "behavior"
+  },
+  "cost": {
+    "source": "obj_template_cost",
+    "requires": [],
+    "status": "behavior"
+  },
+  "detector": {
+    "source": "obj_template_detector",
+    "requires": [],
+    "status": "extension"
+  },
+  "detector_cloak": {
+    "source": "obj_template_detector_cloak",
+    "requires": [],
+    "status": "behavior"
+  },
+  "detector_disguise": {
+    "source": "obj_template_detector_disguise",
+    "requires": [],
+    "status": "extension"
+  },
+  "detector_psi": {
+    "source": "obj_template_detector_psi",
+    "requires": [],
+    "status": "extension"
+  },
+  "disguise": {
+    "source": "obj_template_disguise",
+    "requires": [],
+    "status": "extension"
+  },
+  "disruptor": {
+    "source": "obj_template_disruptor",
+    "requires": [],
+    "status": "extension"
+  },
+  "engineer": {
+    "source": "obj_template_engineer",
+    "requires": [],
+    "status": "behavior"
+  },
+  "gui_button_quit": {
+    "source": "obj_template_gui_button_quit",
+    "requires": [],
+    "status": "extension"
+  },
+  "gui_button_start": {
+    "source": "obj_template_gui_button_start",
+    "requires": [],
+    "status": "extension"
+  },
+  "gui_drag": {
+    "source": "obj_template_gui_drag",
+    "requires": [],
+    "status": "extension"
+  },
+  "gui_menu_test": {
+    "source": "obj_template_gui_menu_test",
+    "requires": [],
+    "status": "extension"
+  },
+  "health": {
+    "source": "obj_template_health",
+    "requires": [],
+    "status": "behavior"
+  },
+  "health_regen": {
+    "source": "obj_template_health_regen",
+    "requires": [
+      "health"
+    ],
+    "status": "behavior"
+  },
+  "hero": {
+    "source": "obj_template_hero",
+    "requires": [],
+    "status": "extension"
+  },
+  "interface": {
+    "source": "obj_template_interface",
+    "requires": [],
+    "status": "extension"
+  },
+  "interface_strategy": {
+    "source": "obj_template_interface_strategy",
+    "requires": [],
+    "status": "extension"
+  },
+  "interface_tactics": {
+    "source": "obj_template_interface_tactics",
+    "requires": [],
+    "status": "extension"
+  },
+  "mindcontrol": {
+    "source": "obj_template_mindcontrol",
+    "requires": [],
+    "status": "extension"
+  },
+  "naval": {
+    "source": "obj_template_naval",
+    "requires": [],
+    "status": "movement/category"
+  },
+  "netheral": {
+    "source": "obj_template_netheral",
+    "requires": [],
+    "status": "movement/category"
+  },
+  "orbital": {
+    "source": "obj_template_orbital",
+    "requires": [],
+    "status": "movement/category"
+  },
+  "power_plant": {
+    "source": "obj_template_power_plant",
+    "requires": [
+      "power_user"
+    ],
+    "status": "behavior"
+  },
+  "power_user": {
+    "source": "obj_template_power_user",
+    "requires": [],
+    "status": "behavior"
+  },
+  "projectile": {
+    "source": "obj_template_projectile",
+    "requires": [],
+    "status": "behavior"
+  },
+  "radar": {
+    "source": "obj_template_radar",
+    "requires": [],
+    "status": "behavior"
+  },
+  "resource": {
+    "source": "obj_template_resource",
+    "requires": [],
+    "status": "behavior"
+  },
+  "sequences": {
+    "source": "obj_template_sequences",
+    "requires": [],
+    "status": "extension"
+  },
+  "shield": {
+    "source": "obj_template_shield",
+    "requires": [
+      "health"
+    ],
+    "status": "behavior"
+  },
+  "squad": {
+    "source": "obj_template_squad",
+    "requires": [],
+    "status": "extension"
+  },
+  "storage_transport": {
+    "source": "obj_template_storage_transport",
+    "requires": [],
+    "status": "extension"
+  },
+  "structural": {
+    "source": "obj_template_structural",
+    "requires": [],
+    "status": "movement/category"
+  },
+  "supply": {
+    "source": "obj_template_supply",
+    "requires": [],
+    "status": "behavior"
+  },
+  "supply_weapon_ammo": {
+    "source": "obj_template_supply_weapon_ammo",
+    "requires": [
+      "supply"
+    ],
+    "status": "extension"
+  },
+  "target_repair": {
+    "source": "obj_template_target_repair",
+    "requires": [],
+    "status": "behavior"
+  },
+  "terraform": {
+    "source": "obj_template_terraform",
+    "requires": [],
+    "status": "extension"
+  },
+  "terrestrial": {
+    "source": "obj_template_terrestrial",
+    "requires": [],
+    "status": "movement/category"
+  },
+  "test_engineer": {
+    "source": "obj_template_test_engineer",
+    "requires": [],
+    "status": "extension"
+  },
+  "test_infantry": {
+    "source": "obj_template_test_infantry",
+    "requires": [],
+    "status": "extension"
+  },
+  "test_structure": {
+    "source": "obj_template_test_structure",
+    "requires": [],
+    "status": "extension"
+  },
+  "turret": {
+    "source": "obj_template_turret",
+    "requires": [],
+    "status": "extension"
+  },
+  "veterancy": {
+    "source": "obj_template_veterancy",
+    "requires": [
+      "health"
+    ],
+    "status": "behavior"
+  },
+  "visual_image": {
+    "source": "obj_template_visual_image",
+    "requires": [],
+    "status": "behavior"
+  },
+  "warhead": {
+    "source": "obj_template_warhead",
+    "requires": [],
+    "status": "extension"
+  },
+  "weapon": {
+    "source": "obj_template_weapon",
+    "requires": [],
+    "status": "behavior"
+  }
+}

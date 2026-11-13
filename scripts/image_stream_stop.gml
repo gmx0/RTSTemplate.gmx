@@ -38,7 +38,7 @@ if( ds_map_exists( global.m_ex_image, argument0 ) ){
         ds_priority_destroy( _p_sprite );
         
         var _p_sprite_3d = _m_stream[? "sprite_3d" ];
-        while( ds_priority_size( _p_sprite ) > 0 ){
+        while( ds_priority_size( _p_sprite_3d ) > 0 ){
             var _load_data = ds_priority_delete_max( _p_sprite_3d );
             sprite_delete( _load_data[| __IS_STREAM_IMAGE.SPRITES ] );
             ds_list_destroy( _load_data );

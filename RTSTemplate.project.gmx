@@ -3,7 +3,7 @@
   <Configs name="configs">
     <Config>Configs\Default</Config>
   </Configs>
-  <datafiles number="1" name="datafiles">
+  <datafiles number="3" name="datafiles">
     <datafile>
       <name>test_mod.txt</name>
       <exists>-1</exists>
@@ -20,6 +20,40 @@
         </Config>
       </ConfigOptions>
       <filename>test_mod.txt</filename>
+    </datafile>
+<datafile>
+      <name>core_infantry.ini</name>
+      <exists>-1</exists>
+      <size>269</size>
+      <exportAction>2</exportAction>
+      <exportDir />
+      <overwrite>0</overwrite>
+      <freeData>-1</freeData>
+      <removeEnd>0</removeEnd>
+      <store>0</store>
+      <ConfigOptions>
+        <Config name="Default">
+          <CopyToMask>745537770</CopyToMask>
+        </Config>
+      </ConfigOptions>
+      <filename>core_infantry.ini</filename>
+    </datafile>
+<datafile>
+      <name>core_base.ini</name>
+      <exists>-1</exists>
+      <size>251</size>
+      <exportAction>2</exportAction>
+      <exportDir />
+      <overwrite>0</overwrite>
+      <freeData>-1</freeData>
+      <removeEnd>0</removeEnd>
+      <store>0</store>
+      <ConfigOptions>
+        <Config name="Default">
+          <CopyToMask>745537770</CopyToMask>
+        </Config>
+      </ConfigOptions>
+      <filename>core_base.ini</filename>
     </datafile>
   </datafiles>
   <NewExtensions>
@@ -45,6 +79,46 @@
   </backgrounds>
   <paths name="paths"/>
   <scripts name="scripts">
+    <scripts name="RTS Sandbox Services">
+      <script>scripts\rts_combat_step.gml</script>
+      <script>scripts\rts_definition_load.gml</script>
+      <script>scripts\rts_demo_setup.gml</script>
+      <script>scripts\rts_fog_draw.gml</script>
+      <script>scripts\rts_fog_update.gml</script>
+      <script>scripts\rts_hud_draw.gml</script>
+      <script>scripts\rts_nav_block.gml</script>
+      <script>scripts\rts_nav_clear.gml</script>
+      <script>scripts\rts_nav_free.gml</script>
+      <script>scripts\rts_nav_init.gml</script>
+      <script>scripts\rts_nav_move.gml</script>
+      <script>scripts\rts_nav_request.gml</script>
+      <script>scripts\rts_player_order.gml</script>
+      <script>scripts\rts_point_visible.gml</script>
+      <script>scripts\rts_skirmish_policy.gml</script>
+      <script>scripts\rts_target_forget.gml</script>
+      <script>scripts\rts_template_resolve.gml</script>
+      <script>scripts\rts_test_assert.gml</script>
+      <script>scripts\rts_unit_build_def.gml</script>
+      <script>scripts\rts_world_draw.gml</script>
+      <script>scripts\rts_world_end.gml</script>
+      <script>scripts\rts_world_end_step.gml</script>
+      <script>scripts\rts_world_init.gml</script>
+      <script>scripts\rts_world_step.gml</script>
+    </scripts>
+    <scripts name="RTS Admission">
+      <script>scripts\rts_priority_selftest.gml</script>
+      <script>scripts\rts_unit_init.gml</script>
+      <script>scripts\rts_ability_set.gml</script>
+      <script>scripts\rts_ability_has.gml</script>
+      <script>scripts\rts_visible.gml</script>
+      <script>scripts\rts_command.gml</script>
+      <script>scripts\rts_product_add.gml</script>
+      <script>scripts\rts_production_enqueue.gml</script>
+      <script>scripts\rts_production_cancel.gml</script>
+      <script>scripts\rts_unit_step.gml</script>
+      <script>scripts\rts_unit_end.gml</script>
+      <script>scripts\rts_ai_policy.gml</script>
+    </scripts>
     <scripts name="Minimap">
       <script>scripts\minimap_init.gml</script>
       <script>scripts\minimap_draw.gml</script>

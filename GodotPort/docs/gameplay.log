@@ -1,0 +1,46 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+PASS: skirmish scene initializes both armies and deposits
+PASS: all content IDs and template references resolve
+PASS: source template registry retained
+PASS: HQ supplies power
+PASS: source infantry HP and template composition
+PASS: templates can be attached at runtime
+PASS: duplicate templates rejected
+PASS: template dependency protects health
+PASS: health regeneration template executes
+PASS: template detach works
+PASS: click selection resolves friendly entity
+PASS: box selection collects army
+PASS: server rejects orders for enemy units
+PASS: server rejects non-finite destinations
+PASS: server rejects attack into shroud
+PASS: production accepts supported product
+PASS: production charges credits once
+PASS: production spawns a unit after build time
+PASS: engineer accepts harvest order
+PASS: harvesting transfers finite deposit stock to credits
+PASS: engineer repairs friendly health
+PASS: construction validates and places barracks
+PASS: occupied placement rejected
+PASS: new structure begins under construction
+PASS: construction finishes and power consumption activates
+PASS: completed building satisfies production prerequisite
+PASS: JSON snapshot restores units and positions
+PASS: JSON snapshot restores economy
+PASS: save file writes and reloads
+PASS: targeted signals support consume-once
+PASS: frame signals clear
+PASS: flowfield routes across land bridge without entering water
+PASS: shared flowfields reused
+PASS: terrain changes invalidate shared fields
+PASS: fog distinguishes current vision and unexplored shroud
+PASS: previously visited terrain remains explored
+PASS: pause freezes simulation time
+PASS: projectile combat kills target and awards veterancy
+PASS: shields absorb damage before health
+PASS: shield recharge waits after damage
+PASS: original rm_test sandbox remains available
+RESULT: 41 passed; 0 failed
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)

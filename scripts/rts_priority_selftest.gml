@@ -1,0 +1,88 @@
+// F8 in rm_test. Isolated players/units; live match resources and outcome restored.
+var payer,stranger,un,enemy,base,key,list,before,paused,outcome,field,child_count,job,credits;
+paused=global.pause; outcome=global.rts_match_result;
+global.pause=false; global.rts_match_result="";
+global.rts_test_passed=0; global.rts_test_failed=0;
+payer=instance_create(0,0,obj_player); stranger=instance_create(0,0,obj_player);
+payer.player_resources=100;
+un=rts_unit_build_def(48,48,"core.units.infantry",payer);
+rts_test_assert(instance_exists(un),"build by stable definition ID");
+if !instance_exists(un) {
+ with(payer) instance_destroy(); with(stranger) instance_destroy();
+ global.pause=paused; global.rts_match_result=outcome; return global.rts_test_failed;
+}
+rts_test_assert(ds_list_size(un.template_list)==4,"multiple data-declared templates");
+rts_test_assert(un.unit_hp==10,"definition HP preserved after template initialization");
+rts_test_assert(rts_command(stranger,un,"move",80,48,noone,-1)=="not_owner","ownership admission");
+rts_test_assert(rts_command(payer,un,"move",-1,48,noone,-1)=="outside_room","destination bounds");
+rts_test_assert(rts_command(payer,un,"move",80,48,noone,-1)=="accepted","move admission");
+field=rts_nav_request(80,48);
+rts_test_assert(field==rts_nav_request(80,48),"shared cached flowfield");
+rts_nav_block(80,48,1);
+rts_test_assert(rts_command(payer,un,"move",80,48,noone,-1)=="blocked","blocked destination");
+rts_nav_block(80,48,-1);
+base=rts_unit_build_def(240,48,"core.structures.base",payer);
+rts_test_assert(!rts_nav_free(7,1),"structure blocks navigation");
+with(base) instance_destroy();
+rts_test_assert(rts_nav_free(7,1),"structure destruction releases blocker");
+global.pause=true; before=un.x;
+with(un) rts_unit_step();
+rts_test_assert(un.x==before,"pause suspends movement");
+global.pause=false;
+repeat 24 with(un) rts_unit_step();
+rts_test_assert(abs(un.x-80)<0.1,"flowfield reaches destination");
+rts_test_assert(!rts_visible(stranger,un),"hidden enemy disclosure");
+enemy=rts_unit_build_def(720,48,"core.units.infantry",stranger);
+rts_test_assert(rts_command(payer,un,"attack",0,0,enemy,-1)=="hidden_target","attack rejects hidden enemy");
+rts_test_assert(rts_command(stranger,un,"attack",0,0,un,-1)=="not_owner","attack ownership");
+rts_fog_update(payer);
+rts_test_assert(rts_point_visible(payer,80,48),"current vision");
+un.x=720; rts_fog_update(payer);
+rts_test_assert(!rts_point_visible(payer,80,48) && payer.player_fog[# 2,1]==1,"explored memory after moving");
+un.x=48;
+with(enemy) instance_destroy();
+with(un) {
+ rts_ability_set("attack",false); rts_ability_set("produce",true);
+ rts_product_add(obj_unit,obj_template,1,25,"core.units.infantry");
+}
+rts_test_assert(rts_command(payer,un,"produce",0,0,noone,0)=="accepted","production admission");
+rts_test_assert(payer.player_resources==75,"charge exactly once");
+rts_test_assert(rts_command(payer,un,"cancel",0,0,noone,0)=="accepted","cancel accepted");
+rts_test_assert(payer.player_resources==100,"cancel refunds payer");
+rts_test_assert(rts_command(payer,un,"cancel",0,0,noone,0)=="invalid_job","double cancellation rejected");
+rts_command(payer,un,"produce",0,0,noone,0);
+with(un) rts_ability_set("produce",false);
+with(un) rts_unit_step();
+rts_test_assert(ds_list_size(un.unit_production)==1,"disabled producer retains job");
+with(un) rts_ability_set("produce",true);
+with(un) rts_unit_step();
+child_count=0;
+with(obj_unit) if unit_owner==payer && id!=un child_count+=1;
+rts_test_assert(child_count==1 && ds_list_size(un.unit_production)==0,"production completes once");
+rts_test_assert(payer.player_resources==75,"completion does not charge twice");
+payer.player_resources=0;
+rts_test_assert(rts_command(payer,un,"produce",0,0,noone,0)=="insufficient_resources","insufficient resources");
+payer.player_resources=75;
+un.unit_queue_limit=1;
+rts_command(payer,un,"produce",0,0,noone,0);
+rts_test_assert(rts_command(payer,un,"produce",0,0,noone,0)=="queue_full","queue limit");
+rts_command(payer,un,"cancel",0,0,noone,0);
+with(un) templates_remove(obj_template_bipedal,false);
+rts_test_assert(rts_command(payer,un,"move",80,48,noone,-1)=="missing_ability","template removal revokes ability");
+rts_command(payer,un,"produce",0,0,noone,0);
+credits=payer.player_resources;
+ds_list_add(payer.player_select,un);
+with(un) instance_destroy();
+rts_test_assert(ds_list_find_index(payer.player_select,un)<0,"destroyed unit leaves selection");
+key=ds_map_find_first(global._target);
+repeat ds_map_size(global._target) {
+ list=global._target[? key];
+ rts_test_assert(ds_list_find_index(list,un)<0,"destroyed unit leaves category "+key);
+ key=ds_map_find_next(global._target,key);
+}
+rts_test_assert(payer.player_resources==credits+25,"producer death refunds unfinished work");
+with(obj_unit) if unit_owner==payer instance_destroy();
+with(payer) instance_destroy(); with(stranger) instance_destroy();
+global.pause=paused; global.rts_match_result=outcome;
+show_debug_message("RTS smoke: "+string(global.rts_test_passed)+" passed, "+string(global.rts_test_failed)+" failed");
+return global.rts_test_failed;

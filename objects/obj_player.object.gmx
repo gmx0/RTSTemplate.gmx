@@ -36,7 +36,14 @@ player_command_x=x;
 player_command_y=y;
 
 select_init();
-</string>
+
+player_resources=0;
+player_ai_policy=noone;
+player_command_result="idle";
+
+player_fog=ds_grid_create(global.rts_cols,global.rts_rows);
+ds_grid_clear(player_fog,0);
+player_economy_timer=0;</string>
           </argument>
         </arguments>
       </action>
@@ -82,20 +89,7 @@ select_init();
           <argument>
             <kind>1</kind>
             <string>player_state=player_states.plyr_command;
-
-player_command_x=x;
-player_command_y=y;
-
-if instance_exists(player_unit)
-with player_unit
-{
- if unit_select
- {
- unit_command_x=other.player_command_x;
- unit_command_y=other.player_command_y;
- }
-}
-</string>
+rts_player_order(id,x,y);</string>
           </argument>
         </arguments>
       </action>
@@ -117,22 +111,14 @@ with player_unit
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>//select units in select box
-if instance_exists(player_unit)
-with player_unit
-{
- if 
- x&lt;=max(other.x,other.player_select_x) &amp;&amp;
- y&lt;=max(other.y,other.player_select_y) &amp;&amp;
- x&gt;=min(other.x,other.player_select_x) &amp;&amp;
- y&gt;=min(other.y,other.player_select_y)
- {
- unit_select=true;
- with other
- select_unit(other.id);
+            <string>var click;
+click=point_distance(x,y,player_select_x,player_select_y)&lt;8;
+with(obj_unit) if unit_owner==other.id &amp;&amp; rts_visible(other.id,id) {
+ if (click &amp;&amp; point_distance(x,y,other.x,other.y)&lt;=18) ||
+ (!click &amp;&amp; x&lt;=max(other.x,other.player_select_x) &amp;&amp; y&lt;=max(other.y,other.player_select_y) &amp;&amp; x&gt;=min(other.x,other.player_select_x) &amp;&amp; y&gt;=min(other.y,other.player_select_y)) {
+  unit_select=true; ds_list_add(other.player_select,id);
  }
 }
-
 player_state=player_states.plyr_idle;
 </string>
           </argument>
@@ -157,23 +143,62 @@ player_state=player_states.plyr_idle;
           <argument>
             <kind>1</kind>
             <string>player_state=player_states.plyr_select;
-
-//deselect all player units
-if instance_exists(player_unit)
-with player_unit
-{
- unit_select=false;
-}
-
-select_clear();
-
-player_select_x=x;
-player_select_y=y;
+with(obj_unit) if unit_owner==other.id unit_select=false;
+select_clear(); player_select_x=x; player_select_y=y;
 </string>
           </argument>
         </arguments>
       </action>
     </event>
+  <event eventtype="3" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname />
+        <codestring />
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if game_ispaused() || global.rts_match_result!="" exit;
+rts_ai_policy();
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+
+  <event eventtype="1" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname />
+        <codestring />
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>ds_list_destroy(player_select);
+ds_grid_destroy(player_fog);</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+
   </events>
   <PhysicsObject>0</PhysicsObject>
   <PhysicsObjectSensor>0</PhysicsObjectSensor>

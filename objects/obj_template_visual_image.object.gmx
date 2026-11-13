@@ -57,7 +57,7 @@ unit_image = mod_image_get(unit_image_id);
             <kind>1</kind>
             <string>if image_exists(unit_image)
 {
-    draw_image_ext(unit_image, image_index, x, y, image_xscale, image_yscale, image_angle, c_white, image_alpha);
+    draw_image_ext(unit_image, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 }
 else
 {

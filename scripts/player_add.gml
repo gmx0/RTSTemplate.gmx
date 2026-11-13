@@ -10,3 +10,5 @@ global.player[_new].player_unit=argument2;
 global.player[_new].player_color=argument3;
 
 return global.player[_new];
+
+if !instance_exists(global.rts_viewer) global.rts_viewer=global.player[_new];
